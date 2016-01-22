@@ -1,0 +1,96 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Creative - Start Bootstrap Theme</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}" type="text/css">
+<link rel="stylesheet" href="{% static "css/jquery.range.css" %}">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+<body>
+{% block content %}
+
+{% endblock %}
+    <!-- jQuery -->
+    <script src="{% static "js/jquery.min.js" %}"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="{% static "js/bootstrap.min.js" %}"></script>
+<script src="{% static "js/jquery.range.js" %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+// using jQuery
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+var csrftoken = getCookie('csrftoken');
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+            $('.range-slider').jRange({
+                from: 0,
+                to: {{duration}},
+                step: 1,
+                scale: [0,{{duration}}],
+                format: '%s',
+                width: 300,
+                showLabels: true,
+                isRange : true,
+                ondragend:function(e){
+                	var start = e.split(',')[0];
+                	var end = e.split(',')[1];
+					$.ajax({
+					  url: "{% url 'crop_video' %}",
+					  type:'post',
+					  data: {'start':start,'end':end},
+					  context: document.body
+					}).done(function(data) {
+					 $('#videoBox').html('<video width="320" height="240" controls=""><source id="sourceTag" src="'+data.filename+'" type="video/mp4">Your browser does not support the video tag.</video>');
+					});
+                }
+            });
+
+        });
+
+    </script>
+</body>
+
+</html>
